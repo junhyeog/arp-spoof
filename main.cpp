@@ -1,4 +1,3 @@
-
 #include <thread>
 #include <vector>
 
@@ -112,7 +111,7 @@ int main(int argc, char* argv[]) {
   // get handle
   char* dev = argv[1];
   char errbuf[PCAP_ERRBUF_SIZE];
-  pcap_t* handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
+  pcap_t* handle = pcap_open_live(dev, BUFSIZ, 1, 1, errbuf);  // reponse time 1000 -> 1
   if (handle == nullptr) {
     fprintf(stderr, "couldn't open device %s(%s)\n", dev, errbuf);
     return -1;
